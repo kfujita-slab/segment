@@ -38,7 +38,7 @@ localparam integer L1_UNITS    = 12;
 localparam integer L2_UNITS    = 12;
 localparam integer L3_UNITS    = 12;
 // fixed-point format
-localparam integer L1_INT_BITW = 3;
+localparam integer L1_INT_BITW = 5;
 localparam integer L2_INT_BITW = 5;
 localparam integer L3_INT_BITW = 5;
 localparam integer FRAC_BITW   = 8;  // must be = 8 (in_y = 24bit RGB)

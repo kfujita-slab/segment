@@ -22,10 +22,10 @@ module top
 );
 
 // parameters
-localparam integer WIDTH0    = 480;
-localparam integer HEIGHT0   = 640;
-localparam integer W_WIDTH0  = 480; // ?
-localparam integer W_HEIGHT0 = 640; // ?
+localparam integer WIDTH0    = 640;
+localparam integer HEIGHT0   = 480;
+localparam integer W_WIDTH0  = 640; // ?
+localparam integer W_HEIGHT0 = 480; // ?
 
 localparam integer OUT_BITW  = 13;
 localparam integer UNITS     = 12;
@@ -672,7 +672,7 @@ conv_one
 reg signed [OUT_BITW-1:0]  a,b,c,d;
 reg signed [OUT_BITW-1:0]  more0,more1;
 reg        [1:0]             win1,win2,win3;
-reg [0:OUT_BITW-1]         max;
+//reg [0:OUT_BITW-1]         max;
 reg [V_BITW0-1:0]    end_vcnt1, end_vcnt2, end_vcnt3;
 reg [H_BITW0-1:0]    end_hcnt1, end_hcnt2, end_hcnt3; 
 
@@ -702,10 +702,10 @@ always @(posedge clock) begin
     end
     if(c > d)begin
         more1 <= c;
-        win1  <= 2'b10;
+        win2  <= 2'b10;
     end else begin
         more1 <= d;
-        win1  <= 2'b11;
+        win2  <= 2'b11;
     end
     if(more0 > more1)begin
         win3 <= win1;
