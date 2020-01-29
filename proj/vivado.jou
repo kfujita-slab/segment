@@ -1,0 +1,47 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Wed Jan 29 12:37:50 2020
+# Process ID: 32632
+# Current directory: /home/users/kfujita/resol_hdl/segment/proj
+# Command line: vivado segment_1/segment_1.xpr
+# Log file: /home/users/kfujita/resol_hdl/segment/proj/vivado.log
+# Journal file: /home/users/kfujita/resol_hdl/segment/proj/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project segment_1/segment_1.xpr
+update_compile_order -fileset sources_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+update_compile_order -fileset sources_1
+export_ip_user_files -of_objects  [get_files /home/users/kfujita/resol_hdl/segment/src/common/coord_adjuster.v] -no_script -reset -force -quiet
+remove_files  /home/users/kfujita/resol_hdl/segment/src/common/coord_adjuster.v
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+launch_runs impl_1 -jobs 48
+wait_on_run impl_1
+open_run impl_1
+set_property STEPS.SYNTH_DESIGN.ARGS.MAX_DSP 768 [get_runs synth_1]
+set_property STEPS.SYNTH_DESIGN.ARGS.MAX_BRAM_CASCADE_HEIGHT 3456 [get_runs synth_1]
+add_files -fileset constrs_1 -norecurse /home/users/kfujita/resol_hdl/segment/xdc/vcu108.xdc
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1

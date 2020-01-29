@@ -1,0 +1,27 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Mon Jan 20 08:58:57 2020
+# Process ID: 23149
+# Current directory: /home/users/kfujita/resol_hdl/segment/proj
+# Command line: vivado
+# Log file: /home/users/kfujita/resol_hdl/segment/proj/vivado.log
+# Journal file: /home/users/kfujita/resol_hdl/segment/proj/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/users/kfujita/resol_hdl/segment/proj/unpool_test/unpool_test.xpr
+update_compile_order -fileset sources_1
+add_files -norecurse /home/users/kfujita/resol_hdl/segment/src/maxpoolng.v
+update_compile_order -fileset sources_1
+add_files -norecurse {/home/users/kfujita/resol_hdl/segment/src/itgnet.v /home/users/kfujita/resol_hdl/segment/src/extnet.v /home/users/kfujita/resol_hdl/segment/src/rdcnet.v /home/users/kfujita/resol_hdl/segment/src/conv_one.v /home/users/kfujita/resol_hdl/segment/src/layer.v}
+update_compile_order -fileset sources_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+launch_runs impl_1 -jobs 48
+wait_on_run impl_1
+reset_run impl_1
+launch_runs impl_1 -jobs 48
+wait_on_run impl_1
+reset_run impl_1

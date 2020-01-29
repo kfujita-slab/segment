@@ -1,0 +1,15 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Mon Jan 27 17:13:28 2020
+# Process ID: 5348
+# Current directory: /home/users/kfujita/resol_hdl/segment/proj
+# Command line: vivado unpool_test/unpool_test.xpr
+# Log file: /home/users/kfujita/resol_hdl/segment/proj/vivado.log
+# Journal file: /home/users/kfujita/resol_hdl/segment/proj/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project unpool_test/unpool_test.xpr
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1

@@ -1,0 +1,22 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Mon Jan 20 15:28:25 2020
+# Process ID: 8793
+# Current directory: /home/users/kfujita/resol_hdl/segment/proj
+# Command line: vivado
+# Log file: /home/users/kfujita/resol_hdl/segment/proj/vivado.log
+# Journal file: /home/users/kfujita/resol_hdl/segment/proj/vivado.jou
+#-----------------------------------------------------------
+start_gui
+create_project segment_1 /home/users/kfujita/resol_hdl/segment/proj/segment_1 -part xcvu095-ffva2104-2-e
+add_files -norecurse {/home/users/kfujita/resol_hdl/segment/src/common/integrate.v /home/users/kfujita/resol_hdl/segment/src/extnet.v /home/users/kfujita/resol_hdl/segment/src/rdcnet.v /home/users/kfujita/resol_hdl/segment/src/common/fifo.v /home/users/kfujita/resol_hdl/segment/src/common/forward.v /home/users/kfujita/resol_hdl/segment/src/unpooling.v /home/users/kfujita/resol_hdl/segment/src/common/ram.v /home/users/kfujita/resol_hdl/segment/src/itgnet.v /home/users/kfujita/resol_hdl/segment/src/maxpoolng.v /home/users/kfujita/resol_hdl/segment/src/common/coord_adjuster.v /home/users/kfujita/resol_hdl/segment/src/common/delay.v /home/users/kfujita/resol_hdl/segment/src/conv_one.v /home/users/kfujita/resol_hdl/segment/src/layer.v /home/users/kfujita/resol_hdl/segment/src/top.v /home/users/kfujita/resol_hdl/segment/src/common/stream_patch.v}
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
+update_compile_order -fileset sources_1
+reset_run synth_1
+launch_runs synth_1 -jobs 48
+wait_on_run synth_1
