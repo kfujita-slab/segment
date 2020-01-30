@@ -31,7 +31,7 @@ if(2 <= LATENCY) begin : delay_use_fifo
     .INITIAL_SIZE(LATENCY - 1) )
     fifo_0
     (  .wr_clock(clock),  .rd_clock(clock),  .n_rst(n_rst),
-        .wr_en(enable),      .rd_en(enable),
+        .wr_en(enable),      .rd_en(1),
     .wr_data(in_data), .rd_data(out_data) );
 end
 else begin : delay_no_use_fifo
