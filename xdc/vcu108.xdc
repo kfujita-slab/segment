@@ -10,10 +10,10 @@
 #set_property PACKAGE_PIN G22         [get_ports clk_4]
 #set_property IOSTANDARD LVCMOS18     [get_ports clk_4]
 
-create_clock -name clock -period 10.0 [get_ports clock]
-set_propagated_clock clock
-set_property PACKAGE_PIN G22         [get_ports clock]
-set_property IOSTANDARD LVCMOS18     [get_ports clock]
+create_clock -name clock -period 10.0 [get_ports "clock"]
+set_propagated_clock "clock"
+set_property PACKAGE_PIN G22         [get_ports "clock"]
+set_property IOSTANDARD LVCMOS18     [get_ports "clock"]
 
 set_property PACKAGE_PIN AU21        [get_ports "n_rst"]
 set_property IOSTANDARD  LVCMOS18    [get_ports "n_rst"]
