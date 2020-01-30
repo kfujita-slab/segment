@@ -47,8 +47,8 @@ input wire [V_BITW-1:0]                in_vcnt;
 input wire [H_BITW-1:0]                in_hcnt;
 output wire                            out_enable;
 output wire [0:FIXED_BITW*UNITS-1]     out_pixels;
-output wire [V_BITW-1:0]               out_vcnt;    //[log2(V_BITW/2)-1:0] ?
-output wire [H_BITW-1:0]               out_hcnt;    //[log2(H_BITW/2)-1:0] ?
+output wire [V_BITW-2:0]               out_vcnt;    //[log2(V_BITW/2)-1:0] ?
+output wire [H_BITW-2:0]               out_hcnt;    //[log2(H_BITW/2)-1:0] ?
 // -------------------------------------------------------------------------
 genvar      p, v, h, m;
 
