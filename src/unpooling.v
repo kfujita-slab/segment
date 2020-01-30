@@ -152,7 +152,7 @@ always @(posedge clock) begin
         end else begin
             one_line_count <= one_line_count + 1;
         end
-        if(line_count == UppR_BUF-1)begin
+        if(line_count == UppR_BUF)begin
             line_count <= 0;
         end else if(one_line_enable) begin
             line_count <= line_count + 1;
