@@ -78,16 +78,31 @@ end
 // patch (shift registers)
 for(v = 0; v < PATCH_HEIGHT; v = v + 1) begin: stp_patch_v
     for(h = 0; h < PATCH_WIDTH - 1; h = h + 1) begin: stp_patch_h
-        always @(posedge clock)
-            patch[v][h] <= patch[v][h+1];
+        always @(posedge clock) begin
+            if(reg_enable)begin
+                patch[v][h] <= patch[v][h+1];
+            end else begin
+                patch[v][h] <= patch[v][h];
+            end
+        end
     end
     if(v == PATCH_HEIGHT - 1) begin
-        always @(posedge clock)
-            patch[v][PATCH_WIDTH-1] <= in_pixel;
+        always @(posedge clock) begin
+            if(reg_enable)begin
+                patch[v][PATCH_WIDTH-1] <= in_pixel;
+            end else begin
+                patch[v][PATCH_WIDTH-1] <= patch[v][PATCH_WIDTH-1];
+            end
+        end
     end
     else begin
-        always @(posedge clock)
-            patch[v][PATCH_WIDTH-1] <= stp_delay_v[v+1].delay_out;
+        always @(posedge clock)begin
+            if(reg_enable)begin
+                patch[v][PATCH_WIDTH-1] <= stp_delay_v[v+1].delay_out;
+            end else begin
+                patch[v][PATCH_WIDTH-1] <= stp_delay_v[v+1].delay_out;
+            end
+        end
     end
 end     
 endgenerate
