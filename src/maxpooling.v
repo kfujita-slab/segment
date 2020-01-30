@@ -172,31 +172,42 @@ delay_v
 );
 
 // check enable data & output
-wire prev_out_enable;
-assign prev_out_enable = (prev_vcnt[0]==1'b1 && prev_hcnt[0]==1'b1);
 
-reg [H_BITW-1:0]               reg_vcnt;
-reg [V_BITW-1:0]               reg_hcnt;
+reg [H_BITW-1:0]               reg_hcnt;
+reg [V_BITW-1:0]               reg_vcnt;
 reg [0:FIXED_BITW*UNITS-1]     reg_out;
-reg                            reg_out_enable;
+assign out_enable = ((prev_hcnt[0]==1'b1 && prev_vcnt[0]==1'b1) && reg_hcnt[0]==1'b0);
+assign out_pixels = out_enable ? pooling_pixels : reg_out;
 always @(posedge clock)begin
-    if(prev_out_enable) begin
-        reg_vcnt <= prev_vcnt;
-        reg_hcnt <= prev_hcnt;
-        reg_out  <= prev_out;
-        reg_out_enable <= prev_out_enable;
-    end
-    else begin
-        reg_vcnt <= reg_vcnt;
-        reg_hcnt <= reg_hcnt;
-        reg_out  <= reg_out;
-        reg_out_enable <= prev_out_enable;
-    end
+    reg_hcnt <= prev_hcnt;
+    reg_out  <= pooling_pixels;
 end
 
-assign {out_vcnt, out_hcnt} = {reg_vcnt[H_BITW-1:1], reg_hcnt[V_BITW-1:1]};
-assign out_pixels =  reg_out;
-assign out_enable =  reg_out_enable;
+//wire prev_out_enable;
+//assign prev_out_enable = (prev_vcnt[0]==1'b1 && prev_hcnt[0]==1'b1);
+//
+//reg [V_BITW-1:0]               reg_vcnt;
+//reg [H_BITW-1:0]               reg_hcnt;
+//reg [0:FIXED_BITW*UNITS-1]     reg_out;
+//reg                            reg_out_enable;
+//always @(posedge clock)begin
+//    if(prev_out_enable) begin
+//        reg_vcnt <= prev_vcnt;
+//        reg_hcnt <= prev_hcnt;
+//        reg_out  <= prev_out;
+//        reg_out_enable <= prev_out_enable;
+//    end
+//    else begin
+//        reg_vcnt <= reg_vcnt;
+//        reg_hcnt <= reg_hcnt;
+//        reg_out  <= reg_out;
+//        reg_out_enable <= prev_out_enable;
+//    end
+//end
+//
+//assign {out_vcnt, out_hcnt} = {reg_vcnt[V_BITW-1:1], reg_hcnt[H_BITW-1:1]};
+//assign out_pixels =  reg_out;
+//assign out_enable =  reg_out_enable;
 
 // delay for cb/cr channels ------------------------------------------------
 
