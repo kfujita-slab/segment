@@ -1,0 +1,2 @@
+default:
+	xmverilog +access+r -sv sim_segment.sv ../src/top.v ../src/extnet.v ../src/rdcnet.v ../src/itgnet.v ../src/layer.v ../src/maxpooling.v ../src/unpooling.v ../src/conv_one.v ../src/common/delay.v ../src/common/fifo.v ../src/common/forward.v ../src/common/integrate.v ../src/common/ram.v ../src/common/stream_patch.v ../src/param/unit12_ext_fixed_param.txt ../src/param/unit12_rdc_fixed_param.txt ../src/param/unit12_mrg_fixed_param.txt ../src/param/unit12_lkh_fixed_param.txt

@@ -1,0 +1,36 @@
+//
+// File created by:  xmverilog
+// Do not modify this file
+//
+-XLMODE
+./xcelium.d/run.lnx8664.18.09.d
+-RUNMODE
+-sv
+sim_segment.sv
+../src/top.v
+../src/extnet.v
+../src/rdcnet.v
+../src/itgnet.v
+../src/layer.v
+../src/maxpooling.v
+../src/unpooling.v
+../src/conv_one.v
+../src/common/delay.v
+../src/common/fifo.v
+../src/common/forward.v
+../src/common/integrate.v
+../src/common/ram.v
+../src/common/stream_patch.v
+../src/param/unit12_ext_fixed_param.txt
+../src/param/unit12_rdc_fixed_param.txt
+../src/param/unit12_mrg_fixed_param.txt
+../src/param/unit12_lkh_fixed_param.txt
+-CDSLIB
+./xcelium.d/run.lnx8664.18.09.d/cdsrun.lib
+-HDLVAR
+./xcelium.d/run.lnx8664.18.09.d/hdlrun.var
+-MESSAGES
+-UPDATE
+-XLLIBSTORE
+./xcelium.d/run.lnx8664.18.09.d/xllibs
+-ALLOWUNBOUND
