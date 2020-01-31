@@ -64,8 +64,8 @@ input wire [V_BITW-1:0]                in_vcnt;
 input wire [H_BITW-1:0]                in_hcnt;
 output wire                            out_enable;
 output wire [0:FIXED_BITW*UNITS-1]     out_pixels;
-output wire [V_BITW:0]                 out_vcnt;    //[log2(V_BITW/2)-1:0] ?
-output wire [H_BITW:0]                 out_hcnt;    //[log2(H_BITW/2)-1:0] ?
+output wire [V_BITW-1:0]               out_vcnt;    //[log2(V_BITW/2)-1:0] ?
+output wire [H_BITW-1:0]               out_hcnt;    //[log2(H_BITW/2)-1:0] ?
 // -------------------------------------------------------------------------
 // genvar      p, v, h, m;
 
@@ -348,10 +348,10 @@ function [V_BITW:0] choiceV;
     input [V_BITW-1:0] lowr_out_vcnt;
     begin
         case(state_reg)
-        `UL: choiceV = {uppl_out_vcnt,1'b0};
-        `UR: choiceV = {uppr_out_vcnt,1'b0};
-        `LL: choiceV = {lowl_out_vcnt,1'b1};
-        `LR: choiceV = {lowr_out_vcnt,1'b1};
+        `UL: choiceV = {uppl_out_vcnt[V_BITW-1:1],1'b0};
+        `UR: choiceV = {uppr_out_vcnt[V_BITW-1:1],1'b0};
+        `LL: choiceV = {lowl_out_vcnt[V_BITW-1:1],1'b1};
+        `LR: choiceV = {lowr_out_vcnt[V_BITW-1:1],1'b1};
         default: choiceV = 'bx;
         endcase
     end
@@ -366,10 +366,10 @@ function [H_BITW:0] choiceH;
     input [H_BITW-1:0] lowr_out_hcnt;
     begin
         case(state_reg)
-        `UL: choiceH = {uppl_out_hcnt,1'b0};
-        `UR: choiceH = {uppr_out_hcnt,1'b1};
-        `LL: choiceH = {lowl_out_hcnt,1'b0};
-        `LR: choiceH = {lowr_out_hcnt,1'b1};
+        `UL: choiceH = {uppl_out_hcnt[H_BITW-1:1],1'b0};
+        `UR: choiceH = {uppr_out_hcnt[H_BITW-1:1],1'b1};
+        `LL: choiceH = {lowl_out_hcnt[H_BITW-1:1],1'b0};
+        `LR: choiceH = {lowr_out_hcnt[H_BITW-1:1],1'b1};
         default: choiceH = 'bx;
         endcase
     end

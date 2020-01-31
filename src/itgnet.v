@@ -70,7 +70,7 @@ output wire                                out_enable;
 `include "/home/users/kfujita/resol_hdl/segment/src/param/unit12_mrg_fixed_param.txt"
 
 // [layer 1] ---------------------------------------------------------------
-wire [(L1_FIXED_BITW*3)-1:0]        in_fixed;
+wire [0:L1_FIXED_BITW*L1_UNITS-1]   in_fixed;
 wire [0:L1_FIXED_BITW*L1_UNITS-1]   l1_out;
 wire [V_BITW-1:0]                   l1_vcnt;
 wire [H_BITW-1:0]                   l1_hcnt;

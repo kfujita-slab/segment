@@ -22,7 +22,8 @@ module maxpooling
     parameter integer W_WIDTH       = -1,
     parameter integer W_HEIGHT      = -1,
     parameter integer FIXED_BITW    = -1,
-    parameter integer UNITS         = -1
+    parameter integer UNITS         = -1,
+    parameter integer LEVEL         = -1
 )
 (   clock,      n_rst,
     in_enable,
@@ -47,8 +48,8 @@ input wire [V_BITW-1:0]                in_vcnt;
 input wire [H_BITW-1:0]                in_hcnt;
 output wire                            out_enable;
 output wire [0:FIXED_BITW*UNITS-1]     out_pixels;
-output wire [V_BITW-2:0]               out_vcnt;    //[log2(V_BITW/2)-1:0] ?
-output wire [H_BITW-2:0]               out_hcnt;    //[log2(H_BITW/2)-1:0] ?
+output wire [V_BITW-1:0]               out_vcnt;    //[log2(V_BITW/2)-1:0] ?
+output wire [H_BITW-1:0]               out_hcnt;    //[log2(H_BITW/2)-1:0] ?
 // -------------------------------------------------------------------------
 genvar      p, v, h, m;
 
@@ -172,16 +173,27 @@ delay_v
 );
 
 // check enable data & output
-
-reg [H_BITW-1:0]               reg_hcnt;
-reg [V_BITW-1:0]               reg_vcnt;
 reg [0:FIXED_BITW*UNITS-1]     reg_out;
-assign out_enable = ((prev_hcnt[0]==1'b1 && prev_vcnt[0]==1'b1) && reg_hcnt[0]==1'b0);
+assign out_enable = prev_hcnt[LEVEL:0]==4'b1111 && prev_vcnt[LEVEL:0]==4'b1111;
 assign out_pixels = out_enable ? pooling_pixels : reg_out;
+assign {out_vcnt, out_hcnt} = {prev_vcnt, prev_hcnt};
 always @(posedge clock)begin
-    reg_hcnt <= prev_hcnt;
     reg_out  <= pooling_pixels;
 end
+
+//wire vcnt_check;
+//reg                            reg_hcnt;
+//reg                            reg_vcnt;
+//reg [0:FIXED_BITW*UNITS-1]     reg_out;
+//assign {out_vcnt, out_hcnt} = {prev_vcnt[V_BITW-1:1], prev_hcnt[H_BITW-1:1]};
+//assign out_enable = ((prev_hcnt[0]==1'b1 && prev_vcnt[0]==1'b1) && (reg_hcnt==1'b1 && vcnt_check==1'b1 ));
+//assign out_pixels = out_enable ? pooling_pixels : reg_out;
+//assign vcnt_check = (out_enable)  ? prev_vcnt[0] : reg_vcnt;
+//always @(posedge clock)begin
+//    reg_hcnt <= prev_hcnt[0];
+//    reg_vcnt <= vcnt_check;
+//    reg_out  <= pooling_pixels;
+//end
 
 //wire prev_out_enable;
 //assign prev_out_enable = (prev_vcnt[0]==1'b1 && prev_hcnt[0]==1'b1);

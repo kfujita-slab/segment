@@ -64,8 +64,9 @@ reg [BIT_WIDTH-1:0]     patch[0:PATCH_HEIGHT-1][0:PATCH_WIDTH-1];
 generate
 //enable Buff
 reg reg_enable;
-always @(posedge clock)
+always @(posedge clock) begin
     reg_enable <= enable;
+end
 // <delay> modules (FIFO)
 for(v = 1; v < PATCH_HEIGHT; v = v + 1) begin: stp_delay_v
     wire [BIT_WIDTH-1:0] delay_out;

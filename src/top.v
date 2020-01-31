@@ -31,25 +31,25 @@ localparam integer OUT_BITW  = 13;
 localparam integer UNITS     = 12;
 
 // other parameters
-localparam integer WIDTH1    = WIDTH0    / 2;
-localparam integer HEIGHT1   = HEIGHT0   / 2;
-localparam integer W_WIDTH1  = W_WIDTH0  / 2;
-localparam integer W_HEIGHT1 = W_HEIGHT0 / 2;
+localparam integer WIDTH1    = WIDTH0    ;
+localparam integer HEIGHT1   = HEIGHT0   ;
+localparam integer W_WIDTH1  = W_WIDTH0  ;
+localparam integer W_HEIGHT1 = W_HEIGHT0 ;
 
-localparam integer WIDTH2    = WIDTH1    / 2;
-localparam integer HEIGHT2   = HEIGHT1   / 2;
-localparam integer W_WIDTH2  = W_WIDTH1  / 2;
-localparam integer W_HEIGHT2 = W_HEIGHT1 / 2;
+localparam integer WIDTH2    = WIDTH1    ;
+localparam integer HEIGHT2   = HEIGHT1   ;
+localparam integer W_WIDTH2  = W_WIDTH1  ;
+localparam integer W_HEIGHT2 = W_HEIGHT1 ;
 
-localparam integer WIDTH3    = WIDTH2    / 2;
-localparam integer HEIGHT3   = HEIGHT2   / 2;
-localparam integer W_WIDTH3  = W_WIDTH2  / 2;
-localparam integer W_HEIGHT3 = W_HEIGHT2 / 2;
+localparam integer WIDTH3    = WIDTH2    ;
+localparam integer HEIGHT3   = HEIGHT2   ;
+localparam integer W_WIDTH3  = W_WIDTH2  ;
+localparam integer W_HEIGHT3 = W_HEIGHT2 ;
 
-localparam integer WIDTH4    = WIDTH3    / 2;
-localparam integer HEIGHT4   = HEIGHT3   / 2;
-localparam integer W_WIDTH4  = W_WIDTH3  / 2;
-localparam integer W_HEIGHT4 = W_HEIGHT3 / 2;
+localparam integer WIDTH4    = WIDTH3    ;
+localparam integer HEIGHT4   = HEIGHT3   ;
+localparam integer W_WIDTH4  = W_WIDTH3  ;
+localparam integer W_HEIGHT4 = W_HEIGHT3 ;
 
 localparam integer H_BITW0   = log2(W_WIDTH0);
 localparam integer V_BITW0   = log2(W_HEIGHT0);
@@ -107,7 +107,8 @@ maxpooling
     .W_WIDTH(W_WIDTH0),
     .W_HEIGHT(W_HEIGHT0),
     .FIXED_BITW(OUT_BITW),
-    .UNITS(UNITS)
+    .UNITS(UNITS),
+    .LEVEL(0)
 )
 pool_0to1
 (
@@ -133,7 +134,7 @@ rdcnet
     .WIDTH(WIDTH1),
     .W_HEIGHT(W_HEIGHT1),
     .W_WIDTH(W_WIDTH1),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 rdcnet_inst1
@@ -160,7 +161,8 @@ maxpooling
     .W_WIDTH(W_WIDTH1),
     .W_HEIGHT(W_HEIGHT1),
     .FIXED_BITW(OUT_BITW),
-    .UNITS(UNITS)
+    .UNITS(UNITS),
+    .LEVEL(1)
 )
 pool_1to2
 (
@@ -187,7 +189,7 @@ rdcnet
     .WIDTH(WIDTH2),
     .W_HEIGHT(W_HEIGHT2),
     .W_WIDTH(W_WIDTH2),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 rdcnet_inst2
@@ -214,7 +216,8 @@ maxpooling
     .W_WIDTH(W_WIDTH2),
     .W_HEIGHT(W_HEIGHT2),
     .FIXED_BITW(OUT_BITW),
-    .UNITS(UNITS)
+    .UNITS(UNITS),
+    .LEVEL(2)
 )
 pool_2to3
 (
@@ -241,7 +244,7 @@ rdcnet
     .WIDTH(WIDTH3),
     .W_HEIGHT(W_HEIGHT3),
     .W_WIDTH(W_WIDTH3),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 rdcnet_inst3
@@ -268,7 +271,8 @@ maxpooling
     .W_WIDTH(W_WIDTH3),
     .W_HEIGHT(W_HEIGHT3),
     .FIXED_BITW(OUT_BITW),
-    .UNITS(UNITS)
+    .UNITS(UNITS),
+    .LEVEL(3)
 )
 pool_3to4
 (
@@ -295,7 +299,7 @@ rdcnet
     .WIDTH(WIDTH4),
     .W_HEIGHT(W_HEIGHT4),
     .W_WIDTH(W_WIDTH4),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 rdcnet_inst4
@@ -380,7 +384,7 @@ itgnet
     .WIDTH(WIDTH3),
     .W_HEIGHT(W_HEIGHT3),
     .W_WIDTH(W_WIDTH3),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 itgnet_inst3
@@ -463,7 +467,7 @@ itgnet
     .WIDTH(WIDTH2),
     .W_HEIGHT(W_HEIGHT2),
     .W_WIDTH(W_WIDTH2),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 itgnet_inst2
@@ -546,7 +550,7 @@ itgnet
     .WIDTH(WIDTH1),
     .W_HEIGHT(W_HEIGHT1),
     .W_WIDTH(W_WIDTH1),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 itgnet_inst1
@@ -629,7 +633,7 @@ itgnet
     .WIDTH(WIDTH0),
     .W_HEIGHT(W_HEIGHT0),
     .W_WIDTH(W_WIDTH0),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(3)
 )
 itgnet_inst0
@@ -655,9 +659,10 @@ conv_one
     .WIDTH(WIDTH0),
     .W_HEIGHT(W_HEIGHT0),
     .W_WIDTH(W_WIDTH0),
-    .UINT_BITW(OUT_BITW),
+    .UINT_BITW(8),
     .PATCH_SIZE(1)
 )
+conv_inst
 (
     .clock(clock),
     .n_rst(n_rst),
