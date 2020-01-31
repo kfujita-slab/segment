@@ -30,8 +30,8 @@ parameter integer PADDING      = 1 ) // to apply padding or not
 out_patch, out_vcnt, out_hcnt );
 
 // local parameters --------------------------------------------------------
-localparam integer V_BITW     = log2(640);
-localparam integer H_BITW     = log2(480);
+localparam integer V_BITW     = log2(480);
+localparam integer H_BITW     = log2(640);
 localparam integer PATCH_BITW = BIT_WIDTH * PATCH_WIDTH * PATCH_HEIGHT;
 
 // inputs ------------------------------------------------------------------
@@ -150,19 +150,19 @@ for(v = 0; v < PATCH_HEIGHT; v = v + 1) begin: stp_pad_v
             assign tgt_h = h;
         end
         else begin
-            assign tgt_v = (v + ctr_vcnt < CENTER_V) ? CENTER_V - ctr_vcnt :
-            (IMAGE_HEIGHT + CENTER_V <= v + ctr_vcnt) ?
-            (CENTER_V + IMAGE_HEIGHT - 1) - ctr_vcnt : v;
-            assign tgt_h = (h + ctr_hcnt < CENTER_H) ? CENTER_H - ctr_hcnt :
-            (IMAGE_WIDTH + CENTER_H <= h + ctr_hcnt) ?
-            (CENTER_H + IMAGE_WIDTH - 1) - ctr_hcnt : h;
+            assign tgt_v = (v + ctr_vcnt[V_BITW-1:LEVEL] < CENTER_V) ? CENTER_V - ctr_vcnt[V_BITW-1:LEVEL] :
+            (IMAGE_HEIGHT + CENTER_V <= v + ctr_vcnt[V_BITW-1:LEVEL]) ?
+            (CENTER_V + IMAGE_HEIGHT - 1) - ctr_vcnt[V_BITW-1:LEVEL] : v;
+            assign tgt_h = (h + ctr_hcnt[H_BITW-1:LEVEL] < CENTER_H) ? CENTER_H - ctr_hcnt[H_BITW-1:LEVEL] :
+            (IMAGE_WIDTH + CENTER_H <= h + ctr_hcnt[H_BITW-1:LEVEL]) ?
+            (CENTER_H + IMAGE_WIDTH - 1) - ctr_hcnt[H_BITW-1:LEVEL] : h;
         end
         always @(posedge clock)
-            out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt < IMAGE_HEIGHT) && (ctr_hcnt < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
+            out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt[V_BITW-1:LEVEL] < IMAGE_HEIGHT) && (ctr_hcnt[H_BTW-1:LEVEL] < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
     end
 end
 always @(posedge clock)
-    {out_vcnt, out_hcnt} <= {ctr_vcnt, ctr_hcnt}; 
+    {out_vcnt, out_hcnt} <= {ctr_vcnt, ctr_hcnt};
 endgenerate
 
 // functions ---------------------------------------------------------------
