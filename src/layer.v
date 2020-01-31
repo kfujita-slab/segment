@@ -206,7 +206,7 @@ delay_v
 // delay for enable signal
 delay
 #(  .BIT_WIDTH(1),
-    .LATENCY(LATENCY + 2)
+    .LATENCY(LATENCY + 3)
 )
 delay_inst
 (

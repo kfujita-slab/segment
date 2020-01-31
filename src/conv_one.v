@@ -68,7 +68,7 @@ output wire [H_BITW-1:0]                 out_hcnt;
 
 // [layer 1] ---------------------------------------------------------------
 wire [0:L1_FIXED_BITW*L1_UNITS-1]   in_fixed;
-wire [0:L1_FIXED_BITW*L1_UNITS-1]   l1_out;
+wire [0:L1_FIXED_BITW*4-1]   l1_out;
 wire [V_BITW-1:0]                   l1_vcnt;
 wire [H_BITW-1:0]                   l1_hcnt;
 

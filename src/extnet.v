@@ -95,7 +95,7 @@ layer
     .LEVEL(0)  )
 layer_1
 (   .clock(clock),        .n_rst(n_rst),
-    .in_enable(1),
+    .in_enable(1'b1),
     .in_pixels(in_fixed),
     .in_vcnt(in_vcnt),    .in_hcnt(in_hcnt),
     .out_enable(),
@@ -116,7 +116,7 @@ layer
     .LEVEL(0)  )
 layer_2
 (   .clock(clock),        .n_rst(n_rst),
-    .in_enable(1),
+    .in_enable(1'b1),
     .in_pixels(l1_out),
     .in_vcnt(l1_vcnt),    .in_hcnt(l1_hcnt),
     .out_enable(),
@@ -137,7 +137,7 @@ layer
     .LEVEL(0)  )
 layer_3
 (   .clock(clock),        .n_rst(n_rst),
-    .in_enable(1),
+    .in_enable(1'b1),
     .in_pixels(l2_out),
     .in_vcnt(l2_vcnt),    .in_hcnt(l2_hcnt),
     .out_enable(),

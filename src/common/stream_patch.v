@@ -159,7 +159,10 @@ for(v = 0; v < PATCH_HEIGHT; v = v + 1) begin: stp_pad_v
             (CENTER_H + IMAGE_WIDTH - 1) - ctr_hcnt[H_BITW-1:LEVEL] : h;
         end
         always @(posedge clock)
-            out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt[V_BITW-1:LEVEL] < IMAGE_HEIGHT) && (ctr_hcnt[H_BITW-1:LEVEL] < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
+            if(enable)
+                out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt[V_BITW-1:LEVEL] < IMAGE_HEIGHT) && (ctr_hcnt[H_BITW-1:LEVEL] < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
+            else
+                out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH];
     end
 end
 always @(posedge clock)

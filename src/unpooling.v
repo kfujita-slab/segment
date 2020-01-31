@@ -78,74 +78,7 @@ reg  [0:FIXED_BITW*UNITS-1]     in_pixels_reg;
 reg                             in_enable_reg;
 reg                             state_enable_reg;
 
-// line_enables
 reg [2:0] state_reg;
-//reg       prev_vcnt_reg_level;
-reg       prev_vcnt_reg_zero;
-//wire      prev_vcnt_level;
-wire      prev_vcnt_zero;
-wire      line_enable;
-wire      one_line_enable;
-wire      rst_enable;
-//assign prev_vcnt_level   = prev_vcnt_reg_level;
-//assign line_enable       = (in_vcnt[LEVEL] != prev_vcnt_level);
-//assign one_line_enable   = (in_vcnt[0]     != prev_vcnt_zero);
-assign prev_vcnt_zero    = prev_vcnt_reg_zero;
-assign rst_enable   = (in_vcnt[0]  != prev_vcnt_zero);
-always @(posedge clock)begin
-    //prev_vcnt_reg_level <= in_vcnt[LEVEL];
-    prev_vcnt_reg_zero  <= in_vcnt[0];
-end
-
-// state_enable
-wire               state_enable;
-//reg                state_enable_reg;
-reg [BUF_BITW-1:0] state_count;
-assign state_enable = (state_count == UppR_BUF - 1);
-always @(posedge clock) begin
-    if(in_enable)begin
-        state_count <= 0;
-    end
-    else begin
-        if(state_count == UppR_BUF - 1)begin
-            state_count <= 0;
-        end
-        else begin
-            state_count  <= state_count + 1;
-        end
-    end
-end
-//always @(posedge clock)begin
-//    state_enable_reg <= state_enable;
-//end
-
-wire BEEN_enable;//begin and end
-reg [FIRST_WBITW-1:0] one_line_count;
-reg [BUF_BITW-1:0] line_count;
-assign one_line_enable = (one_line_count == FIRST_WIDTH-1);
-assign line_enable = line_count == (1 << LEVEL);
-assign BEEN_enable = (LEVEL==0) ? 1 : (line_count==0) || (line_count == (1 << LEVEL));
-assign out_enable  = BEEN_enable && state_enable_reg;
-always @(posedge clock) begin
-    if(rst_enable)begin
-        one_line_count <= 0;
-        line_count     <= 0;
-    end
-    else begin
-        if(one_line_count == FIRST_WIDTH-1)begin
-            one_line_count <= 0;
-        end else begin
-            one_line_count <= one_line_count + 1;
-        end
-        if(line_count == UppR_BUF)begin
-            line_count <= 0;
-        end else if(one_line_enable) begin
-            line_count <= line_count + 1;
-        end else begin
-            line_count <= line_count;
-        end
-    end
-end
 
 reg [H_BITW-1:0]                hcnt_reg;
 reg [V_BITW-1:0]                vcnt_reg;
@@ -158,17 +91,39 @@ wire [H_BITW-1:0]               lowl_out_hcnt;
 wire [V_BITW-1:0]               lowr_out_vcnt;
 wire [H_BITW-1:0]               lowr_out_hcnt;
 
+// state_enable
+wire               state_enable;
+assign state_enable = in_hcnt[LEVEL] != hcnt_reg[LEVEL];
+
 always @(posedge clock)begin
     in_pixels_reg    <= in_pixels;
-    in_enable_reg    <= in_enable;
-    state_enable_reg <= state_enable;
     hcnt_reg         <= in_hcnt;
     vcnt_reg         <= in_vcnt;
+    state_enable_reg <= state_enable;
 end
 assign uppl_out_pixels = in_pixels_reg;
 assign uppl_out_hcnt   = hcnt_reg;
 assign uppl_out_vcnt   = vcnt_reg;
 //assign out_enable      = LEVEL==0 ? 1'b1 : out_vcnt[LEVEL-1:0]=='b0 && out_hcnt[LEVEL-1:0]=='b0;
+
+// line_enables
+wire                line_enable;
+//reg [V_BITW-1:0]    prev_vcnt;
+assign line_enable  = in_vcnt[LEVEL] != vcnt_reg[LEVEL];
+//always @(posedge clock)begin
+//    if(in_hcnt==0)begin
+//        prev_vcnt <= in_vcnt;
+//    end else begin
+//        prev_vcnt <= prev_vcnt;
+//    end
+//end
+
+// one_line_enable
+wire                one_line_enable;
+assign one_line_enable = in_vcnt[0] != vcnt_reg[0];
+
+// out_enable
+assign out_enable = ((state_reg==`UL)||(state_reg==`UR)||(state_reg==`LL)||(state_reg==`LR)) && state_enable_reg;
 
 delay
 #(  .BIT_WIDTH(FIXED_BITW*UNITS),
@@ -262,7 +217,13 @@ always @(posedge clock or negedge n_rst) begin
     else begin
         case(state_reg)
             `UL:begin
-                if(state_enable)begin
+                if(one_line_enable)begin
+                    if(LEVEL==0)begin
+                        state_reg <= `LL;
+                    end else begin
+                        state_reg <= `LN_WAIT;
+                    end
+                end else if(state_enable)begin
                     state_reg <= `UR;
                 end
                 else state_reg <= `UL;
@@ -274,8 +235,7 @@ always @(posedge clock or negedge n_rst) begin
                     end else begin
                         state_reg <= `LN_WAIT;
                     end
-                end
-                else if(in_enable)begin
+                end else if(state_enable)begin
                     state_reg <= `UL;
                 end
                 else state_reg <= `UR;
@@ -288,7 +248,13 @@ always @(posedge clock or negedge n_rst) begin
                 end
             end
             `LL:begin
-                if(state_enable)begin
+                if(one_line_enable)begin
+                    if(LEVEL==0)begin
+                        state_reg <= `UL;
+                    end else begin
+                        state_reg <= `EN_WAIT;
+                    end
+                end else if(state_enable)begin
                     state_reg <= `LR;
                 end
                 else state_reg <= `LL;
@@ -334,43 +300,49 @@ function [0:FIXED_BITW*UNITS-1] choiceOUT;
         `UR: choiceOUT = uppr_out_pixels;
         `LL: choiceOUT = lowl_out_pixels;
         `LR: choiceOUT = lowr_out_pixels;
-        default: choiceOUT = 'bx;
+        default: choiceOUT = 'b1;
         endcase
     end
 endfunction
 
 assign out_vcnt = choiceV(state_reg,uppl_out_vcnt,uppr_out_vcnt,lowl_out_vcnt,lowr_out_vcnt);
-function [V_BITW:0] choiceV;
+//assign out_vcnt = uppl_out_vcnt;
+function [V_BITW-1:0] choiceV;
     input [2:0] state_reg;
     input [V_BITW-1:0] uppl_out_vcnt;
     input [V_BITW-1:0] uppr_out_vcnt;
     input [V_BITW-1:0] lowl_out_vcnt;
     input [V_BITW-1:0] lowr_out_vcnt;
+    localparam unsigned [V_BITW-1:0] ZERO = 0;
+    localparam unsigned [V_BITW-1:0] MSK =  ~ZERO - (1 << LEVEL);
     begin
         case(state_reg)
-        `UL: choiceV = {uppl_out_vcnt[V_BITW-1:1],1'b0};
-        `UR: choiceV = {uppr_out_vcnt[V_BITW-1:1],1'b0};
-        `LL: choiceV = {lowl_out_vcnt[V_BITW-1:1],1'b1};
-        `LR: choiceV = {lowr_out_vcnt[V_BITW-1:1],1'b1};
-        default: choiceV = 'bx;
+        `UL: choiceV = uppl_out_vcnt & MSK;
+        `UR: choiceV = uppr_out_vcnt & MSK;
+        `LL: choiceV = {lowl_out_vcnt[V_BITW-1:0]};
+        `LR: choiceV = {lowr_out_vcnt[V_BITW-1:0]};
+        default: choiceV = uppl_out_vcnt;
         endcase
     end
 endfunction
 
 assign out_hcnt = choiceH(state_reg,uppl_out_hcnt,uppr_out_hcnt,lowl_out_hcnt,lowr_out_hcnt);
-function [H_BITW:0] choiceH;
+//assign out_hcnt = uppl_out_hcnt;
+function [H_BITW-1:0] choiceH;
     input [2:0] state_reg;
     input [H_BITW-1:0] uppl_out_hcnt;
     input [H_BITW-1:0] uppr_out_hcnt;
     input [H_BITW-1:0] lowl_out_hcnt;
     input [H_BITW-1:0] lowr_out_hcnt;
+    localparam unsigned [V_BITW-1:0] ZERO = 0;
+    localparam unsigned [V_BITW-1:0] MSK =  ~ZERO - (1 << LEVEL); 
     begin
         case(state_reg)
-        `UL: choiceH = {uppl_out_hcnt[H_BITW-1:1],1'b0};
-        `UR: choiceH = {uppr_out_hcnt[H_BITW-1:1],1'b1};
-        `LL: choiceH = {lowl_out_hcnt[H_BITW-1:1],1'b0};
-        `LR: choiceH = {lowr_out_hcnt[H_BITW-1:1],1'b1};
-        default: choiceH = 'bx;
+        `UL: choiceH = uppl_out_hcnt & MSK;
+        `UR: choiceH = {uppr_out_hcnt[H_BITW-1:0]};
+        `LL: choiceH = lowl_out_hcnt & MSK;
+        `LR: choiceH = {lowr_out_hcnt[H_BITW-1:0]};
+        default: choiceH = uppl_out_hcnt;
         endcase
     end
 endfunction
