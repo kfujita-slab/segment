@@ -135,7 +135,8 @@ rdcnet
     .W_HEIGHT(W_HEIGHT1),
     .W_WIDTH(W_WIDTH1),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(1)
 )
 rdcnet_inst1
 (
@@ -190,7 +191,8 @@ rdcnet
     .W_HEIGHT(W_HEIGHT2),
     .W_WIDTH(W_WIDTH2),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(2)
 )
 rdcnet_inst2
 (
@@ -245,7 +247,8 @@ rdcnet
     .W_HEIGHT(W_HEIGHT3),
     .W_WIDTH(W_WIDTH3),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(3)
 )
 rdcnet_inst3
 (
@@ -300,7 +303,8 @@ rdcnet
     .W_HEIGHT(W_HEIGHT4),
     .W_WIDTH(W_WIDTH4),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(4)
 )
 rdcnet_inst4
 (
@@ -385,7 +389,8 @@ itgnet
     .W_HEIGHT(W_HEIGHT3),
     .W_WIDTH(W_WIDTH3),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(3)
 )
 itgnet_inst3
 (
@@ -468,7 +473,8 @@ itgnet
     .W_HEIGHT(W_HEIGHT2),
     .W_WIDTH(W_WIDTH2),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(2)
 )
 itgnet_inst2
 (
@@ -551,7 +557,8 @@ itgnet
     .W_HEIGHT(W_HEIGHT1),
     .W_WIDTH(W_WIDTH1),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(1)
 )
 itgnet_inst1
 (
@@ -634,7 +641,8 @@ itgnet
     .W_HEIGHT(W_HEIGHT0),
     .W_WIDTH(W_WIDTH0),
     .UINT_BITW(8),
-    .PATCH_SIZE(3)
+    .PATCH_SIZE(3),
+    .LEVEL(0)
 )
 itgnet_inst0
 (

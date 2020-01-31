@@ -30,8 +30,8 @@ parameter integer PADDING      = 1 ) // to apply padding or not
 out_patch, out_vcnt, out_hcnt );
 
 // local parameters --------------------------------------------------------
-localparam integer V_BITW     = log2(FRAME_HEIGHT);
-localparam integer H_BITW     = log2(FRAME_WIDTH);
+localparam integer V_BITW     = log2(640);
+localparam integer H_BITW     = log2(480);
 localparam integer PATCH_BITW = BIT_WIDTH * PATCH_WIDTH * PATCH_HEIGHT;
 
 // inputs ------------------------------------------------------------------

@@ -174,7 +174,7 @@ delay_v
 
 // check enable data & output
 reg [0:FIXED_BITW*UNITS-1]     reg_out;
-assign out_enable = prev_hcnt[LEVEL:0]==4'b1111 && prev_vcnt[LEVEL:0]==4'b1111;
+assign out_enable = prev_hcnt[LEVEL:0]=='1 && prev_vcnt[LEVEL:0]=='1;
 assign out_pixels = out_enable ? pooling_pixels : reg_out;
 assign {out_vcnt, out_hcnt} = {prev_vcnt, prev_hcnt};
 always @(posedge clock)begin

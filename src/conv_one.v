@@ -88,7 +88,8 @@ layer
     .UINT_BITW(UINT_BITW),  .FRAC_BITW(FRAC_BITW),
     .PREV_UNITS(L1_UNITS),  .PREV_INT_BITW(L1_INT_BITW),
     .UNITS(4),       .INT_BITW(L1_INT_BITW),
-    .FLT_SIZE(L1_FLT_SIZE), .FLT(L1_FLT),           .BIAS(L1_BIAS)  )
+    .FLT_SIZE(L1_FLT_SIZE), .FLT(L1_FLT),           .BIAS(L1_BIAS),
+    .LEVEL(0)  )
 layer_1
 (   .clock(clock),        .n_rst(n_rst),
     .in_enable(1),

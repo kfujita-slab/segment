@@ -23,7 +23,8 @@ module itgnet
     parameter integer W_HEIGHT   = -1,
     parameter integer W_WIDTH    = -1,
     parameter integer UINT_BITW  = -1, // input image bit width ( Fixed 8 ... ?)
-    parameter integer PATCH_SIZE = -1 )
+    parameter integer PATCH_SIZE = -1,
+    parameter integer LEVEL      = -1  )
 (   clock, n_rst,
     in_enable,
     in_y,  in_vcnt,  in_hcnt,

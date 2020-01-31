@@ -23,7 +23,8 @@ module rdcnet
     parameter integer W_HEIGHT   = -1,
     parameter integer W_WIDTH    = -1,
     parameter integer UINT_BITW  = -1, // input image bit width ( Fixed 8 ... ?)
-    parameter integer PATCH_SIZE = -1 )
+    parameter integer PATCH_SIZE = -1,
+    parameter integer LEVEL      = -1  )
 (   clock, n_rst,
     in_enable,
     in_y,  in_vcnt,  in_hcnt,
@@ -91,7 +92,8 @@ layer
     .UINT_BITW(UINT_BITW),  .FRAC_BITW(FRAC_BITW),
     .PREV_UNITS(L1_UNITS),  .PREV_INT_BITW(L1_INT_BITW),
     .UNITS(L1_UNITS),       .INT_BITW(L1_INT_BITW),
-    .FLT_SIZE(L1_FLT_SIZE), .FLT(RDC_L1_FLT),           .BIAS(RDC_L1_BIAS)  )
+    .FLT_SIZE(L1_FLT_SIZE), .FLT(RDC_L1_FLT),           .BIAS(RDC_L1_BIAS),
+    .LEVEL(LEVEL)  )
 layer_1
 (   .clock(clock),        .n_rst(n_rst),
     .in_enable(in_enable),
@@ -112,7 +114,8 @@ layer
     .UINT_BITW(UINT_BITW),  .FRAC_BITW(FRAC_BITW),
     .PREV_UNITS(L1_UNITS),  .PREV_INT_BITW(L1_INT_BITW),
     .UNITS(L2_UNITS),       .INT_BITW(L2_INT_BITW),
-    .FLT_SIZE(L2_FLT_SIZE), .FLT(RDC_L2_FLT),           .BIAS(RDC_L2_BIAS)  )
+    .FLT_SIZE(L2_FLT_SIZE), .FLT(RDC_L2_FLT),           .BIAS(RDC_L2_BIAS),
+    .LEVEL(LEVEL)  )
 layer_2
 (   .clock(clock),        .n_rst(n_rst),
     .in_enable(l1_enable),
@@ -133,7 +136,8 @@ layer
     .UINT_BITW(UINT_BITW),  .FRAC_BITW(FRAC_BITW),
     .PREV_UNITS(L2_UNITS),  .PREV_INT_BITW(L2_INT_BITW),
     .UNITS(L3_UNITS),       .INT_BITW(L3_INT_BITW),
-    .FLT_SIZE(L3_FLT_SIZE), .FLT(RDC_L3_FLT),           .BIAS(RDC_L3_BIAS)  )
+    .FLT_SIZE(L3_FLT_SIZE), .FLT(RDC_L3_FLT),           .BIAS(RDC_L3_BIAS),
+    .LEVEL(LEVEL)  )
 layer_3
 (   .clock(clock),        .n_rst(n_rst),
     .in_enable(l2_enable),
