@@ -31,8 +31,8 @@ module layer
     parameter integer UNITS         = -1, // |
     parameter integer FLT_SIZE      = -1, // filter size
     parameter [0:(INT_BITW+FRAC_BITW)*PREV_UNITS*UNITS*FLT_SIZE*FLT_SIZE-1] FLT = 0,
-    parameter [0:(INT_BITW+FRAC_BITW*2)*UNITS-1] BIAS = 0 ),
-    parameter integer LEVEL         = -1
+    parameter [0:(INT_BITW+FRAC_BITW*2)*UNITS-1] BIAS = 0,
+    parameter integer LEVEL         = -1 )
 (   clock,      n_rst,
     in_enable,
     in_pixels, in_vcnt,  in_hcnt,
@@ -103,7 +103,7 @@ for(p = 0; p < PREV_UNITS; p = p + 1) begin : ly_patch
         .FRAME_HEIGHT(W_HEIGHT / (1 << LEVEL)),   .FRAME_WIDTH(W_WIDTH / (1 << LEVEL)),
         .PATCH_HEIGHT(PATCH_SIZE), .PATCH_WIDTH(PATCH_SIZE),
         .CENTER_V(PATCH_SIZE-1),   .CENTER_H(PATCH_SIZE-1),
-        .PADDING(1) )
+        .PADDING(1), .LEVEL(LEVEL) )
     stp_0
     (   .clock(clock),         .n_rst(n_rst),
         .enable(in_enable),

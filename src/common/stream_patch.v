@@ -24,7 +24,8 @@ module stream_patch
     parameter integer PATCH_WIDTH  = -1, // |
     parameter integer CENTER_V     = PATCH_HEIGHT / 2, // | center position
     parameter integer CENTER_H     = PATCH_WIDTH  / 2, // |
-parameter integer PADDING      = 1 ) // to apply padding or not
+    parameter integer PADDING      = 1,
+    parameter integer LEVEL        = -1 ) // to apply padding or not
 ( clock,     n_rst,    enable,
     in_pixel,  in_vcnt,  in_hcnt,
 out_patch, out_vcnt, out_hcnt );
@@ -158,7 +159,7 @@ for(v = 0; v < PATCH_HEIGHT; v = v + 1) begin: stp_pad_v
             (CENTER_H + IMAGE_WIDTH - 1) - ctr_hcnt[H_BITW-1:LEVEL] : h;
         end
         always @(posedge clock)
-            out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt[V_BITW-1:LEVEL] < IMAGE_HEIGHT) && (ctr_hcnt[H_BTW-1:LEVEL] < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
+            out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt[V_BITW-1:LEVEL] < IMAGE_HEIGHT) && (ctr_hcnt[H_BITW-1:LEVEL] < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
     end
 end
 always @(posedge clock)

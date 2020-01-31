@@ -89,11 +89,11 @@ for(p = 0; p < UNITS; p = p + 1) begin : ly_patch
     wire [V_BITW-1:0]     stp_vcnt_w;
     stream_patch
     #(  .BIT_WIDTH(FIXED_BITW),
-        .IMAGE_HEIGHT(HEIGHT),     .IMAGE_WIDTH(WIDTH),
-        .FRAME_HEIGHT(W_HEIGHT),   .FRAME_WIDTH(W_WIDTH),
+        .IMAGE_HEIGHT(HEIGHT / (1<<LEVEL)),     .IMAGE_WIDTH(WIDTH / (1<<LEVEL)),
+        .FRAME_HEIGHT(W_HEIGHT / (1<<LEVEL)),   .FRAME_WIDTH(W_WIDTH / (1<<LEVEL)),
         .PATCH_HEIGHT(PATCH_SIZE), .PATCH_WIDTH(PATCH_SIZE),
         .CENTER_V(PATCH_SIZE-1),   .CENTER_H(PATCH_SIZE-1), // 2x2 FLT CENTER ???
-        .PADDING(0) )                                       // no padding
+        .PADDING(0), .LEVEL(LEVEL) )                                       // no padding
     stp_0
     (   .clock(clock),         .n_rst(n_rst),
         .enable(in_enable),
@@ -174,7 +174,7 @@ delay_v
 
 // check enable data & output
 reg [0:FIXED_BITW*UNITS-1]     reg_out;
-assign out_enable = prev_hcnt[LEVEL:0]=='1 && prev_vcnt[LEVEL:0]=='1;
+assign out_enable = &prev_hcnt[LEVEL:0] && &prev_vcnt[LEVEL:0];
 assign out_pixels = out_enable ? pooling_pixels : reg_out;
 assign {out_vcnt, out_hcnt} = {prev_vcnt, prev_hcnt};
 always @(posedge clock)begin
