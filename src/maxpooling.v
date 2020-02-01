@@ -92,7 +92,7 @@ for(p = 0; p < UNITS; p = p + 1) begin : ly_patch
         .IMAGE_HEIGHT(HEIGHT / (1<<LEVEL)),     .IMAGE_WIDTH(WIDTH / (1<<LEVEL)),
         .FRAME_HEIGHT(W_HEIGHT / (1<<LEVEL)),   .FRAME_WIDTH(W_WIDTH / (1<<LEVEL)),
         .PATCH_HEIGHT(PATCH_SIZE), .PATCH_WIDTH(PATCH_SIZE),
-        .CENTER_V(PATCH_SIZE-1),   .CENTER_H(PATCH_SIZE-1), // 2x2 FLT CENTER ???
+        .CENTER_V(PATCH_SIZE - 1),   .CENTER_H(PATCH_SIZE - 1), // 2x2 FLT CENTER ???
         .PADDING(0), .LEVEL(LEVEL) )                                       // no padding
     stp_0
     (   .clock(clock),         .n_rst(n_rst),

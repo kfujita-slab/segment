@@ -49,7 +49,7 @@ localparam integer V_BITW     = log2(W_HEIGHT);
 localparam integer H_BITW     = log2(W_WIDTH);
 // LEVEL BUF parameter
 // 640 は入力時のWIDTHです。こうしないと正しく遅延できない？
-localparam integer FIRST_WIDTH = 640;
+localparam integer FIRST_WIDTH = W_WIDTH;
 localparam integer UppR_BUF    =  1 << LEVEL;
 localparam integer LowL_BUF    = (1 << LEVEL) * FIRST_WIDTH;
 localparam integer LowR_BUF    = UppR_BUF + LowL_BUF;
@@ -77,6 +77,7 @@ wire [0:FIXED_BITW*UNITS-1]     lowr_out_pixels;
 reg  [0:FIXED_BITW*UNITS-1]     in_pixels_reg;
 reg                             in_enable_reg;
 reg                             state_enable_reg;
+reg                             line_enable_reg;
 
 reg [2:0] state_reg;
 
@@ -91,25 +92,41 @@ wire [H_BITW-1:0]               lowl_out_hcnt;
 wire [V_BITW-1:0]               lowr_out_vcnt;
 wire [H_BITW-1:0]               lowr_out_hcnt;
 
+reg [V_BITW-1:0]               out_vcnt_reg;
+reg [H_BITW-1:0]               out_hcnt_reg;
 // state_enable
 wire               state_enable;
-assign state_enable = in_hcnt[LEVEL] != hcnt_reg[LEVEL];
+assign state_enable = LEVEL == 0 ?  1'b1
+                    : LEVEL == 1 ? (out_hcnt_reg[0]==1'b0) && (&lowr_out_hcnt[0])
+                    : LEVEL == 2 ? (out_hcnt_reg[0]==1'b0) && (&lowr_out_hcnt[1:0])
+                    : LEVEL == 3 ? (out_hcnt_reg[0]==1'b0) && (&lowr_out_hcnt[2:0])
+                    :              (out_hcnt_reg[0]==1'b0) && (&lowr_out_hcnt[3:0]);
 
+wire                line_enable;
 always @(posedge clock)begin
     in_pixels_reg    <= in_pixels;
     hcnt_reg         <= in_hcnt;
     vcnt_reg         <= in_vcnt;
     state_enable_reg <= state_enable;
+    in_enable_reg    <= in_enable;
+    out_vcnt_reg     <= lowr_out_vcnt;
+    out_hcnt_reg     <= lowr_out_hcnt;
+    line_enable_reg  <= line_enable;
 end
 assign uppl_out_pixels = in_pixels_reg;
 assign uppl_out_hcnt   = hcnt_reg;
 assign uppl_out_vcnt   = vcnt_reg;
+assign out_vcnt   = out_vcnt_reg;
+assign out_hcnt   = out_hcnt_reg;
 //assign out_enable      = LEVEL==0 ? 1'b1 : out_vcnt[LEVEL-1:0]=='b0 && out_hcnt[LEVEL-1:0]=='b0;
 
 // line_enables
-wire                line_enable;
 //reg [V_BITW-1:0]    prev_vcnt;
-assign line_enable  = in_vcnt[LEVEL] != vcnt_reg[LEVEL];
+assign line_enable  = LEVEL == 0 ? 1'b0
+                    : LEVEL == 1 ? (out_vcnt_reg[0] == 1'b0) && (&lowr_out_vcnt[0])
+                    : LEVEL == 2 ? (out_vcnt_reg[0] == 1'b0) && (&lowr_out_vcnt[1:0])
+                    : LEVEL == 3 ? (out_vcnt_reg[0] == 1'b0) && (&lowr_out_vcnt[2:0])
+                    :              (out_vcnt_reg[0] == 1'b0) && (&lowr_out_vcnt[3:0]);
 //always @(posedge clock)begin
 //    if(in_hcnt==0)begin
 //        prev_vcnt <= in_vcnt;
@@ -120,10 +137,11 @@ assign line_enable  = in_vcnt[LEVEL] != vcnt_reg[LEVEL];
 
 // one_line_enable
 wire                one_line_enable;
-assign one_line_enable = in_vcnt[0] != vcnt_reg[0];
+assign one_line_enable = out_vcnt_reg[0] != lowr_out_vcnt[0];
 
 // out_enable
-assign out_enable = ((state_reg==`UL)||(state_reg==`UR)||(state_reg==`LL)||(state_reg==`LR)) && state_enable_reg;
+assign out_enable = (((state_reg==`UL)||(state_reg==`UR)||(state_reg==`LL)||(state_reg==`LR)) 
+                    && (state_enable_reg)) || in_enable_reg || (line_enable_reg&&state_reg==`LN_WAIT);
 
 delay
 #(  .BIT_WIDTH(FIXED_BITW*UNITS),
@@ -153,43 +171,43 @@ delay_LowR
     .in_data(in_pixels_reg), .out_data(lowr_out_pixels)
 );
 
-delay
-#(  .BIT_WIDTH(V_BITW),
-    .LATENCY(UppR_BUF)
-)
-delay_UppR_V
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(vcnt_reg), .out_data(uppr_out_vcnt)
-);
-delay
-#(  .BIT_WIDTH(H_BITW),
-    .LATENCY(UppR_BUF)
-)
-delay_UppR_H
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(hcnt_reg), .out_data(uppr_out_hcnt)
-);
-
-delay
-#(  .BIT_WIDTH(V_BITW),
-    .LATENCY(LowL_BUF)
-)
-delay_LowL_V
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(vcnt_reg), .out_data(lowl_out_vcnt)
-);
-delay
-#(  .BIT_WIDTH(H_BITW),
-    .LATENCY(LowL_BUF)
-)
-delay_LowL_H
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(hcnt_reg), .out_data(lowl_out_hcnt)
-);
+//delay
+//#(  .BIT_WIDTH(V_BITW),
+//    .LATENCY(UppR_BUF)
+//)
+//delay_UppR_V
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1),
+//    .in_data(vcnt_reg), .out_data(uppr_out_vcnt)
+//);
+//delay
+//#(  .BIT_WIDTH(H_BITW),
+//    .LATENCY(UppR_BUF)
+//)
+//delay_UppR_H
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1),
+//    .in_data(hcnt_reg), .out_data(uppr_out_hcnt)
+//);
+//
+//delay
+//#(  .BIT_WIDTH(V_BITW),
+//    .LATENCY(LowL_BUF)
+//)
+//delay_LowL_V
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1),
+//    .in_data(vcnt_reg), .out_data(lowl_out_vcnt)
+//);
+//delay
+//#(  .BIT_WIDTH(H_BITW),
+//    .LATENCY(LowL_BUF)
+//)
+//delay_LowL_H
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1),
+//    .in_data(hcnt_reg), .out_data(lowl_out_hcnt)
+//);
 
 delay
 #(  .BIT_WIDTH(V_BITW),
@@ -198,7 +216,7 @@ delay
 delay_LowR_V
 (   .clock(clock),  .n_rst(n_rst),
     .enable(1),
-    .in_data(vcnt_reg), .out_data(lowr_out_vcnt)
+    .in_data(in_vcnt), .out_data(lowr_out_vcnt)
 );
 delay
 #(  .BIT_WIDTH(H_BITW),
@@ -207,7 +225,7 @@ delay
 delay_LowR_H
 (   .clock(clock),  .n_rst(n_rst),
     .enable(1),
-    .in_data(hcnt_reg), .out_data(lowr_out_hcnt)
+    .in_data(in_hcnt), .out_data(lowr_out_hcnt)
 );
 
 always @(posedge clock or negedge n_rst) begin
@@ -305,47 +323,50 @@ function [0:FIXED_BITW*UNITS-1] choiceOUT;
     end
 endfunction
 
-assign out_vcnt = choiceV(state_reg,uppl_out_vcnt,uppr_out_vcnt,lowl_out_vcnt,lowr_out_vcnt);
-//assign out_vcnt = uppl_out_vcnt;
-function [V_BITW-1:0] choiceV;
-    input [2:0] state_reg;
-    input [V_BITW-1:0] uppl_out_vcnt;
-    input [V_BITW-1:0] uppr_out_vcnt;
-    input [V_BITW-1:0] lowl_out_vcnt;
-    input [V_BITW-1:0] lowr_out_vcnt;
-    localparam unsigned [V_BITW-1:0] ZERO = 0;
-    localparam unsigned [V_BITW-1:0] MSK =  ~ZERO - (1 << LEVEL);
-    begin
-        case(state_reg)
-        `UL: choiceV = uppl_out_vcnt & MSK;
-        `UR: choiceV = uppr_out_vcnt & MSK;
-        `LL: choiceV = {lowl_out_vcnt[V_BITW-1:0]};
-        `LR: choiceV = {lowr_out_vcnt[V_BITW-1:0]};
-        default: choiceV = uppl_out_vcnt;
-        endcase
-    end
-endfunction
+//assign out_vcnt = lowr_out_vcnt;
+//assign out_hcnt = lowr_out_hcnt;
 
-assign out_hcnt = choiceH(state_reg,uppl_out_hcnt,uppr_out_hcnt,lowl_out_hcnt,lowr_out_hcnt);
-//assign out_hcnt = uppl_out_hcnt;
-function [H_BITW-1:0] choiceH;
-    input [2:0] state_reg;
-    input [H_BITW-1:0] uppl_out_hcnt;
-    input [H_BITW-1:0] uppr_out_hcnt;
-    input [H_BITW-1:0] lowl_out_hcnt;
-    input [H_BITW-1:0] lowr_out_hcnt;
-    localparam unsigned [V_BITW-1:0] ZERO = 0;
-    localparam unsigned [V_BITW-1:0] MSK =  ~ZERO - (1 << LEVEL); 
-    begin
-        case(state_reg)
-        `UL: choiceH = uppl_out_hcnt & MSK;
-        `UR: choiceH = {uppr_out_hcnt[H_BITW-1:0]};
-        `LL: choiceH = lowl_out_hcnt & MSK;
-        `LR: choiceH = {lowr_out_hcnt[H_BITW-1:0]};
-        default: choiceH = uppl_out_hcnt;
-        endcase
-    end
-endfunction
+//assign out_vcnt = choiceV(state_reg,uppl_out_vcnt,uppr_out_vcnt,lowl_out_vcnt,lowr_out_vcnt);
+////assign out_vcnt = uppl_out_vcnt;
+//function [V_BITW-1:0] choiceV;
+//    input [2:0] state_reg;
+//    input [V_BITW-1:0] uppl_out_vcnt;
+//    input [V_BITW-1:0] uppr_out_vcnt;
+//    input [V_BITW-1:0] lowl_out_vcnt;
+//    input [V_BITW-1:0] lowr_out_vcnt;
+//    localparam unsigned [V_BITW-1:0] ZERO = 0;
+//    localparam unsigned [V_BITW-1:0] MSK =  ~ZERO - (1 << LEVEL);
+//    begin
+//        case(state_reg)
+//        `UL: choiceV = uppl_out_vcnt & MSK;
+//        `UR: choiceV = uppr_out_vcnt & MSK;
+//        `LL: choiceV = {lowl_out_vcnt[V_BITW-1:0]};
+//        `LR: choiceV = {lowr_out_vcnt[V_BITW-1:0]};
+//        default: choiceV = uppl_out_vcnt;
+//        endcase
+//    end
+//endfunction
+
+//assign out_hcnt = choiceH(state_reg,uppl_out_hcnt,uppr_out_hcnt,lowl_out_hcnt,lowr_out_hcnt);
+////assign out_hcnt = uppl_out_hcnt;
+//function [H_BITW-1:0] choiceH;
+//    input [2:0] state_reg;
+//    input [H_BITW-1:0] uppl_out_hcnt;
+//    input [H_BITW-1:0] uppr_out_hcnt;
+//    input [H_BITW-1:0] lowl_out_hcnt;
+//    input [H_BITW-1:0] lowr_out_hcnt;
+//    localparam unsigned [V_BITW-1:0] ZERO = 0;
+//    localparam unsigned [V_BITW-1:0] MSK =  ~ZERO - (1 << LEVEL); 
+//    begin
+//        case(state_reg)
+//        `UL: choiceH = uppl_out_hcnt & MSK;
+//        `UR: choiceH = {uppr_out_hcnt[H_BITW-1:0]};
+//        `LL: choiceH = lowl_out_hcnt & MSK;
+//        `LR: choiceH = {lowr_out_hcnt[H_BITW-1:0]};
+//        default: choiceH = uppl_out_hcnt;
+//        endcase
+//    end
+//endfunction
 
 // common functions --------------------------------------------------------
 // calculates ceil(log2(value))
