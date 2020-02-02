@@ -28,7 +28,7 @@ module stream_patch
     parameter integer LEVEL        = -1 ) // to apply padding or not
 ( clock,     n_rst,    enable,
     in_pixel,  in_vcnt,  in_hcnt,
-out_patch, out_vcnt, out_hcnt );
+out_patch, out_vcnt, out_hcnt, out_enable );
 
 // local parameters --------------------------------------------------------
 localparam integer V_BITW     = log2(480);
@@ -54,6 +54,7 @@ output reg [0:PATCH_BITW-1] out_patch;
 // i.e. out_patch = {a[7:0], b[7:0], c[7:0], d[7:0], ..., i[7:0]}
 output reg [V_BITW-1:0]     out_vcnt;
 output reg [H_BITW-1:0]     out_hcnt;
+output wire                 out_enable;
 // if the center position is (2, 1) in the example above,
 // these output coordinates correspond to the pixel <h>
 
@@ -72,9 +73,9 @@ end
 for(v = 1; v < PATCH_HEIGHT; v = v + 1) begin: stp_delay_v
     wire [BIT_WIDTH-1:0] delay_out;
     delay
-    #( .BIT_WIDTH(BIT_WIDTH), .LATENCY(FRAME_WIDTH - PATCH_WIDTH) )
+    #( .BIT_WIDTH(BIT_WIDTH), .LATENCY((FRAME_WIDTH/(1<<LEVEL)) - PATCH_WIDTH))
     dly_0
-    (  .clock(clock),      .n_rst(n_rst),   .enable(reg_enable),
+    (  .clock(clock),      .n_rst(n_rst),   .enable(enable),
     .in_data(patch[v][0]), .out_data(delay_out) );
 end
 // patch (shift registers)
@@ -112,33 +113,54 @@ endgenerate
 // coordinates adjustment based on the given center position ---------------
 wire [V_BITW-1:0]     ctr_vcnt;
 wire [H_BITW-1:0]     ctr_hcnt;
+//wire [V_BITW-1:0]     tmp_vcnt;
+//wire [H_BITW-1:0]     tmp_hcnt;
+//reg  [V_BITW-1:0]     tmp_vcnt_reg;
+//reg  [H_BITW-1:0]     tmp_hcnt_reg;
 //coord_adjuster
 //#( .HEIGHT(FRAME_HEIGHT), .WIDTH(FRAME_WIDTH),
-//.LATENCY( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) )
+//   .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL)-1)
+//)
 //ca_0
 //(  .clock(clock), .in_vcnt(in_vcnt), .in_hcnt(in_hcnt),
-//.out_vcnt(ctr_vcnt), .out_hcnt(ctr_hcnt)  );
+//   .out_vcnt(tmp_vcnt), .out_hcnt(tmp_hcnt)
+//);
+//assign ctr_hcnt = tmp_hcnt_reg;
+//assign ctr_vcnt = tmp_vcnt_reg;
+//always @(posedge clock)begin
+//    tmp_hcnt_reg <= tmp_hcnt;
+//    tmp_vcnt_reg <= tmp_vcnt;
+//end
 delay
 #(
     .BIT_WIDTH(V_BITW),
-    .LATENCY( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 )
+    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
 )
 delay_v
 (
     .clock(clock), .n_rst(n_rst),
-    .enable(enable), .in_data(in_vcnt), .out_data(ctr_vcnt)
+    .enable(1'b1), .in_data(in_vcnt), .out_data(ctr_vcnt)
 );
 delay
 #(
     .BIT_WIDTH(H_BITW),
-    .LATENCY( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 )
+    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
 )
 delay_h
 (
     .clock(clock), .n_rst(n_rst),
-    .enable(enable), .in_data(in_hcnt), .out_data(ctr_hcnt)
+    .enable(1'b1), .in_data(in_hcnt), .out_data(ctr_hcnt)
 );
-
+delay
+#(
+    .BIT_WIDTH(1),
+    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
+)
+delay_enable
+(
+    .clock(clock), .n_rst(n_rst),
+    .enable(1'b1), .in_data(enable), .out_data(out_enable)
+);
 
 // padding and output ------------------------------------------------------
 generate
@@ -151,18 +173,16 @@ for(v = 0; v < PATCH_HEIGHT; v = v + 1) begin: stp_pad_v
             assign tgt_h = h;
         end
         else begin
-            assign tgt_v = (v + ctr_vcnt[V_BITW-1:LEVEL] < CENTER_V) ? CENTER_V - ctr_vcnt[V_BITW-1:LEVEL] :
-            (IMAGE_HEIGHT + CENTER_V <= v + ctr_vcnt[V_BITW-1:LEVEL]) ?
-            (CENTER_V + IMAGE_HEIGHT - 1) - ctr_vcnt[V_BITW-1:LEVEL] : v;
-            assign tgt_h = (h + ctr_hcnt[H_BITW-1:LEVEL] < CENTER_H) ? CENTER_H - ctr_hcnt[H_BITW-1:LEVEL] :
-            (IMAGE_WIDTH + CENTER_H <= h + ctr_hcnt[H_BITW-1:LEVEL]) ?
-            (CENTER_H + IMAGE_WIDTH - 1) - ctr_hcnt[H_BITW-1:LEVEL] : h;
+            assign tgt_v = (v + ctr_vcnt < CENTER_V) ? CENTER_V - ctr_vcnt :
+            (IMAGE_HEIGHT + CENTER_V <= v + ctr_vcnt) ?
+            (CENTER_V + IMAGE_HEIGHT - 1) - ctr_vcnt : v;
+            assign tgt_h = (h + ctr_hcnt < CENTER_H) ? CENTER_H - ctr_hcnt :
+            (IMAGE_WIDTH + CENTER_H <= h + ctr_hcnt) ?
+            (CENTER_H + IMAGE_WIDTH - 1) - ctr_hcnt : h;
         end
-        always @(posedge clock)
-            if(enable)
-                out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt[V_BITW-1:LEVEL] < IMAGE_HEIGHT) && (ctr_hcnt[H_BITW-1:LEVEL] < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
-            else
-                out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH];
+        always @(posedge clock)begin
+            out_patch[(v * PATCH_WIDTH + h) * BIT_WIDTH +: BIT_WIDTH] <= ((ctr_vcnt < IMAGE_HEIGHT) && (ctr_hcnt < IMAGE_WIDTH)) ? patch[tgt_v][tgt_h] : 0;
+        end
     end
 end
 always @(posedge clock)

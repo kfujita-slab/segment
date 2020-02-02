@@ -76,6 +76,7 @@ generate
 reg [H_BITW-1:0]             stp_hcnt;
 reg [V_BITW-1:0]             stp_vcnt;
 reg [0:FIXED_BITW*IN_PIXS-1] flip_pixels;
+wire                  stp_enable;
 
 for(p = 0; p < PREV_UNITS; p = p + 1) begin : ly_patch
 
@@ -99,10 +100,10 @@ for(p = 0; p < PREV_UNITS; p = p + 1) begin : ly_patch
     wire [V_BITW-1:0]     stp_vcnt_w;
     stream_patch
     #(  .BIT_WIDTH(FIXED_BITW),
-        .IMAGE_HEIGHT(HEIGHT / (1 << LEVEL)),     .IMAGE_WIDTH(WIDTH / (1 << LEVEL)),
-        .FRAME_HEIGHT(W_HEIGHT / (1 << LEVEL)),   .FRAME_WIDTH(W_WIDTH / (1 << LEVEL)),
+        .IMAGE_HEIGHT(HEIGHT),     .IMAGE_WIDTH(WIDTH),
+        .FRAME_HEIGHT(W_HEIGHT),   .FRAME_WIDTH(W_WIDTH),
         .PATCH_HEIGHT(PATCH_SIZE), .PATCH_WIDTH(PATCH_SIZE),
-        .CENTER_V(PATCH_SIZE - 1),   .CENTER_H(PATCH_SIZE - 1),
+        .CENTER_V(PATCH_SIZE / 2),   .CENTER_H(PATCH_SIZE / 2),
         .PADDING(1), .LEVEL(LEVEL) )
     stp_0
     (   .clock(clock),         .n_rst(n_rst),
@@ -110,7 +111,8 @@ for(p = 0; p < PREV_UNITS; p = p + 1) begin : ly_patch
         .in_pixel(new_pixel),
         .in_hcnt(in_hcnt),     .in_vcnt(in_vcnt),
         .out_patch(stp_patch),
-        .out_hcnt(stp_hcnt_w), .out_vcnt(stp_vcnt_w)  );
+        .out_hcnt(stp_hcnt_w), .out_vcnt(stp_vcnt_w),
+        .out_enable(stp_enable)  );
 
     // discrete extraction -----------------------------------------
     reg [0:FIXED_BITW-1]  stp_img [0:FLT_SIZE-1][0:FLT_SIZE-1];
@@ -177,42 +179,42 @@ end
 endgenerate
 
 // coordinates adjustment --------------------------------------------------
-//coord_adjuster
-//#(  .HEIGHT(W_HEIGHT), .WIDTH(W_WIDTH), .LATENCY(LATENCY) )
-//ca_1
-//(   .clock(clock), .in_vcnt(stp_vcnt), .in_hcnt(stp_hcnt),
-//    .out_vcnt(out_vcnt), .out_hcnt(out_hcnt) );
+coord_adjuster
+#(  .HEIGHT(W_HEIGHT), .WIDTH(W_WIDTH), .LATENCY(LATENCY) )
+ca_1
+(   .clock(clock), .in_vcnt(stp_vcnt), .in_hcnt(stp_hcnt),
+    .out_vcnt(out_vcnt), .out_hcnt(out_hcnt) );
 // coord adjuster change delay
-delay
-#(  .BIT_WIDTH(H_BITW),
-    .LATENCY(LATENCY)
-)
-delay_h
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(stp_hcnt), .out_data(out_hcnt)
-);
-delay
-#(  .BIT_WIDTH(V_BITW),
-    .LATENCY(LATENCY)
-)
-delay_v
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(stp_vcnt), .out_data(out_vcnt)
-);
+//delay
+//#(  .BIT_WIDTH(H_BITW),
+//    .LATENCY(LATENCY)
+//)
+//delay_h
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1),
+//    .in_data(stp_hcnt), .out_data(out_hcnt)
+//);
+//delay
+//#(  .BIT_WIDTH(V_BITW),
+//    .LATENCY(LATENCY)
+//)
+//delay_v
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1),
+//    .in_data(stp_vcnt), .out_data(out_vcnt)
+//);
 
 // delay for cb/cr channels ------------------------------------------------
 // delay for enable signal
 delay
 #(  .BIT_WIDTH(1),
-    .LATENCY(LATENCY + 3)
+    .LATENCY((LATENCY + 2))
 )
 delay_inst
 (
     .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(in_enable), .out_data(out_enable)
+    .enable(1'b1),
+    .in_data(stp_enable), .out_data(out_enable)
 );
 // delay .LATENCY( (((PATCH_SIZE - 1 - CENTER_V) * W_WIDTH + (PATCH_SIZE - 1 - CENTER_H) + 1 ) + 1) + 1 + LATENCY  )
 // common functions --------------------------------------------------------

@@ -89,8 +89,8 @@ for(p = 0; p < UNITS; p = p + 1) begin : ly_patch
     wire [V_BITW-1:0]     stp_vcnt_w;
     stream_patch
     #(  .BIT_WIDTH(FIXED_BITW),
-        .IMAGE_HEIGHT(HEIGHT / (1<<LEVEL)),     .IMAGE_WIDTH(WIDTH / (1<<LEVEL)),
-        .FRAME_HEIGHT(W_HEIGHT / (1<<LEVEL)),   .FRAME_WIDTH(W_WIDTH / (1<<LEVEL)),
+        .IMAGE_HEIGHT(HEIGHT),     .IMAGE_WIDTH(WIDTH),
+        .FRAME_HEIGHT(W_HEIGHT),   .FRAME_WIDTH(W_WIDTH),
         .PATCH_HEIGHT(PATCH_SIZE), .PATCH_WIDTH(PATCH_SIZE),
         .CENTER_V(PATCH_SIZE - 1),   .CENTER_H(PATCH_SIZE - 1), // 2x2 FLT CENTER ???
         .PADDING(0), .LEVEL(LEVEL) )                                       // no padding
@@ -100,7 +100,8 @@ for(p = 0; p < UNITS; p = p + 1) begin : ly_patch
         .in_pixel(new_pixel),
         .in_hcnt(in_hcnt),     .in_vcnt(in_vcnt),
         .out_patch(stp_patch),
-        .out_hcnt(stp_hcnt_w), .out_vcnt(stp_vcnt_w)  );
+        .out_hcnt(stp_hcnt_w), .out_vcnt(stp_vcnt_w),
+        .out_enable()  );
 
     if(p == 0) begin
         always @(posedge clock)
@@ -147,30 +148,30 @@ wire [H_BITW-1:0]             prev_hcnt;
 wire [0:FIXED_BITW*UNITS-1]   prev_out;
 assign prev_out = pooling_pixels;
 
-//coord_adjuster
-//#(  .HEIGHT(W_HEIGHT), .WIDTH(W_WIDTH), .LATENCY(LATENCY) )
-//ca_1
-//(   .clock(clock), .in_vcnt(stp_vcnt), .in_hcnt(stp_hcnt),
-//    .out_vcnt(prev_vcnt), .out_hcnt(prev_hcnt) );
+coord_adjuster
+#(  .HEIGHT(W_HEIGHT), .WIDTH(W_WIDTH), .LATENCY(LATENCY) )
+ca_1
+(   .clock(clock), .in_vcnt(stp_vcnt), .in_hcnt(stp_hcnt),
+    .out_vcnt(prev_vcnt), .out_hcnt(prev_hcnt) );
 // coord adjuster change delay
-delay
-#(  .BIT_WIDTH(H_BITW),
-    .LATENCY(LATENCY)
-)
-delay_h
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(stp_hcnt), .out_data(prev_hcnt)
-);
-delay
-#(  .BIT_WIDTH(V_BITW),
-    .LATENCY(LATENCY)
-)
-delay_v
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(stp_vcnt), .out_data(prev_vcnt)
-);
+//delay
+//#(  .BIT_WIDTH(H_BITW),
+//    .LATENCY(LATENCY)
+//)
+//delay_h
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1'b1),
+//    .in_data(stp_hcnt), .out_data(prev_hcnt)
+//);
+//delay
+//#(  .BIT_WIDTH(V_BITW),
+//    .LATENCY(LATENCY)
+//)
+//delay_v
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1'b1),
+//    .in_data(stp_vcnt), .out_data(prev_vcnt)
+//);
 
 // check enable data & output
 reg [0:FIXED_BITW*UNITS-1]     reg_out;

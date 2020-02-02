@@ -36,7 +36,7 @@ module ram
    output reg [WORD_SIZE-1:0] rd_data;
 
    // registers ---------------------------------------------------------------
-   reg [WORD_SIZE-1:0] 	      memory [0:RAM_SIZE-1];
+   (*ram_style = "block"*) reg [WORD_SIZE-1:0] 	      memory [0:RAM_SIZE-1];
 
    always @(posedge wr_clock) begin
       if(wr_en)

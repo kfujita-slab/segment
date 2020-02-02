@@ -149,7 +149,7 @@ delay
 )
 delay_UppR
 (   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
+    .enable(1'b1),
     .in_data(in_pixels_reg), .out_data(uppr_out_pixels)
 );
 delay
@@ -158,7 +158,7 @@ delay
 )
 delay_LowL
 (   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
+    .enable(1'b1),
     .in_data(in_pixels_reg), .out_data(lowl_out_pixels)
 );
 delay
@@ -167,7 +167,7 @@ delay
 )
 delay_LowR
 (   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
+    .enable(1'b1),
     .in_data(in_pixels_reg), .out_data(lowr_out_pixels)
 );
 
@@ -209,24 +209,34 @@ delay_LowR
 //    .in_data(hcnt_reg), .out_data(lowl_out_hcnt)
 //);
 
-delay
-#(  .BIT_WIDTH(V_BITW),
-    .LATENCY(LowR_BUF)
+coord_adjuster
+#(
+   .HEIGHT(W_HEIGHT), .WIDTH(W_WIDTH), .LATENCY(LowR_BUF)
 )
-delay_LowR_V
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(in_vcnt), .out_data(lowr_out_vcnt)
+ca_1
+(
+    .clock(clock), .in_vcnt(in_vcnt), .in_hcnt(in_hcnt),
+    .out_vcnt(lowr_out_vcnt), .out_hcnt(lowr_out_hcnt)
 );
-delay
-#(  .BIT_WIDTH(H_BITW),
-    .LATENCY(LowR_BUF)
-)
-delay_LowR_H
-(   .clock(clock),  .n_rst(n_rst),
-    .enable(1),
-    .in_data(in_hcnt), .out_data(lowr_out_hcnt)
-);
+
+//delay
+//#(  .BIT_WIDTH(V_BITW),
+//    .LATENCY(LowR_BUF)
+//)
+//delay_LowR_V
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1'b1),
+//    .in_data(in_vcnt), .out_data(lowr_out_vcnt)
+//);
+//delay
+//#(  .BIT_WIDTH(H_BITW),
+//    .LATENCY(LowR_BUF)
+//)
+//delay_LowR_H
+//(   .clock(clock),  .n_rst(n_rst),
+//    .enable(1'b1),
+//    .in_data(in_hcnt), .out_data(lowr_out_hcnt)
+//);
 
 always @(posedge clock or negedge n_rst) begin
     if(!n_rst) begin

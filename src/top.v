@@ -114,7 +114,7 @@ pool_0to1
 (
     .clock(clock),
     .n_rst(n_rst),
-    .in_enable(1),
+    .in_enable(1'b1),
     .in_pixels(ext_out),
     .in_vcnt(ext_vcnt),
     .in_hcnt(ext_hcnt),
@@ -353,16 +353,16 @@ wire [0:OUT_BITW*UNITS-1] buf_out3;
 ram
 #(
     .WORD_SIZE(OUT_BITW*UNITS),
-    .RAM_SIZE(W_HEIGHT3*W_WIDTH3)
+    .RAM_SIZE((W_HEIGHT3/8)*(W_WIDTH3/8))
 )
 buf3
 (
     .wr_clock(clock),
     .rd_clock(clock),
     .wr_en(rdc_enable3),
-    .wr_addr({rdc_vcnt3,rdc_hcnt3}),
+    .wr_addr({rdc_vcnt3[V_BITW3-1:3],rdc_hcnt3[H_BITW3-1:3]}),
     .wr_data(rdc_out3),
-    .rd_addr({unpool_vcnt3,unpool_hcnt3}),
+    .rd_addr({unpool_vcnt3[V_BITW3-1:3],unpool_hcnt3[H_BITW3-1:3]}),
     .rd_data(buf_out3)
 );
 
@@ -438,16 +438,16 @@ wire [0:OUT_BITW*UNITS-1] buf_out2;
 ram
 #(
     .WORD_SIZE(OUT_BITW*UNITS),
-    .RAM_SIZE(W_HEIGHT2*W_WIDTH2)
+    .RAM_SIZE((W_HEIGHT2/4)*(W_WIDTH2/4))
 )
 buf2
 (
     .wr_clock(clock),
     .rd_clock(clock),
     .wr_en(rdc_enable2),
-    .wr_addr({rdc_vcnt2,rdc_hcnt2}),
+    .wr_addr({rdc_vcnt2[V_BITW2-1:2],rdc_hcnt2[H_BITW2-1:2]}),
     .wr_data(rdc_out2),
-    .rd_addr({unpool_vcnt2,unpool_hcnt2}),
+    .rd_addr({unpool_vcnt2[V_BITW2-1:2],unpool_hcnt2[H_BITW2-1:2]}),
     .rd_data(buf_out2)
 );
 reg                      unpool_enable2_reg;
@@ -522,16 +522,16 @@ wire [0:OUT_BITW*UNITS-1] buf_out1;
 ram
 #(
     .WORD_SIZE(OUT_BITW*UNITS),
-    .RAM_SIZE(W_HEIGHT1*W_WIDTH1)
+    .RAM_SIZE((W_HEIGHT1/2)*(W_WIDTH1/2))
 )
 buf1
 (
     .wr_clock(clock),
     .rd_clock(clock),
     .wr_en(rdc_enable1),
-    .wr_addr({rdc_vcnt1,rdc_hcnt1}),
+    .wr_addr({rdc_vcnt1[V_BITW1-1:1],rdc_hcnt1[H_BITW1-1:1]}),
     .wr_data(rdc_out1),
-    .rd_addr({unpool_vcnt1,unpool_hcnt1}),
+    .rd_addr({unpool_vcnt1[V_BITW1-1:1],unpool_hcnt1[H_BITW1-1:1]}),
     .rd_data(buf_out1)
 );
 reg                      unpool_enable1_reg;
