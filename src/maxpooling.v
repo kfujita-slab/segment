@@ -83,6 +83,7 @@ for(p = 0; p < UNITS; p = p + 1) begin : ly_patch
     wire [FIXED_BITW-1:0] new_pixel;
     assign new_pixel = in_pixels[FIXED_BITW * p +: FIXED_BITW];
 
+    //wire tmp_enable;
     // stream patch ------------------------------------------------
     wire [0:PATCH_BITW-1] stp_patch;
     wire [H_BITW-1:0]     stp_hcnt_w;

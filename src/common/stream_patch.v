@@ -115,52 +115,54 @@ wire [V_BITW-1:0]     ctr_vcnt;
 wire [H_BITW-1:0]     ctr_hcnt;
 //wire [V_BITW-1:0]     tmp_vcnt;
 //wire [H_BITW-1:0]     tmp_hcnt;
-//reg  [V_BITW-1:0]     tmp_vcnt_reg;
-//reg  [H_BITW-1:0]     tmp_hcnt_reg;
-//coord_adjuster
-//#( .HEIGHT(FRAME_HEIGHT), .WIDTH(FRAME_WIDTH),
-//   .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL)-1)
+coord_adjuster
+#( .HEIGHT(FRAME_HEIGHT), .WIDTH(FRAME_WIDTH),
+   .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
+)
+ca_0
+(  .clock(clock), .in_vcnt(in_vcnt), .in_hcnt(in_hcnt),
+   .out_vcnt(ctr_vcnt), .out_hcnt(ctr_hcnt)
+);
+//delay
+//#(
+//    .BIT_WIDTH(V_BITW),
+//    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
 //)
-//ca_0
-//(  .clock(clock), .in_vcnt(in_vcnt), .in_hcnt(in_hcnt),
-//   .out_vcnt(tmp_vcnt), .out_hcnt(tmp_hcnt)
+//delay_v
+//(
+//    .clock(clock), .n_rst(n_rst),
+//    .enable(1'b1), .in_data(in_vcnt), .out_data(ctr_vcnt)
 //);
-//assign ctr_hcnt = tmp_hcnt_reg;
-//assign ctr_vcnt = tmp_vcnt_reg;
+//delay
+//#(
+//    .BIT_WIDTH(H_BITW),
+//    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
+//)
+//delay_h
+//(
+//    .clock(clock), .n_rst(n_rst),
+//    .enable(1'b1), .in_data(in_hcnt), .out_data(ctr_hcnt)
+//);
+
+//wire out_enable_wire;
+assign out_enable = LEVEL == 0 ? 1'b1
+                  : LEVEL == 1 ? &ctr_vcnt[0]   && &ctr_hcnt[0]
+                  : LEVEL == 2 ? &ctr_vcnt[1:0] && &ctr_hcnt[1:0]
+                  : LEVEL == 3 ? &ctr_vcnt[2:0] && &ctr_hcnt[2:0]
+                  :              &ctr_vcnt[3:0] && &ctr_hcnt[3:0];
 //always @(posedge clock)begin
-//    tmp_hcnt_reg <= tmp_hcnt;
-//    tmp_vcnt_reg <= tmp_vcnt;
+//    out_enable <= out_enable_wire;
 //end
-delay
-#(
-    .BIT_WIDTH(V_BITW),
-    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
-)
-delay_v
-(
-    .clock(clock), .n_rst(n_rst),
-    .enable(1'b1), .in_data(in_vcnt), .out_data(ctr_vcnt)
-);
-delay
-#(
-    .BIT_WIDTH(H_BITW),
-    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
-)
-delay_h
-(
-    .clock(clock), .n_rst(n_rst),
-    .enable(1'b1), .in_data(in_hcnt), .out_data(ctr_hcnt)
-);
-delay
-#(
-    .BIT_WIDTH(1),
-    .LATENCY(( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL))
-)
-delay_enable
-(
-    .clock(clock), .n_rst(n_rst),
-    .enable(1'b1), .in_data(enable), .out_data(out_enable)
-);
+//delay
+//#(
+//    .BIT_WIDTH(1),
+//    .LATENCY((( (PATCH_HEIGHT - 1 - CENTER_V) * FRAME_WIDTH + (PATCH_WIDTH - 1 - CENTER_H) + 1 ) * (1 << LEVEL)) + 1)
+//)
+//delay_enable
+//(
+//    .clock(clock), .n_rst(n_rst),
+//    .enable(1'b1), .in_data(enable), .out_data(out_enable)
+//);
 
 // padding and output ------------------------------------------------------
 generate
@@ -185,8 +187,19 @@ for(v = 0; v < PATCH_HEIGHT; v = v + 1) begin: stp_pad_v
         end
     end
 end
-always @(posedge clock)
+always @(posedge clock)begin
     {out_vcnt, out_hcnt} <= {ctr_vcnt, ctr_hcnt};
+    //if(LEVEL == 0)
+    //    out_enable <= 1'b1;
+    //else if(LEVEL == 1)
+    //    out_enable <= &ctr_vcnt[0]   && &ctr_hcnt[0];
+    //else if(LEVEL == 2)
+    //    out_enable <= &ctr_vcnt[1:0] && &ctr_hcnt[1:0];
+    //else if(LEVEL == 3)
+    //    out_enable <= &ctr_vcnt[2:0] && &ctr_hcnt[2:0];
+    //else
+    //    out_enable <= &ctr_vcnt[3:0] && &ctr_hcnt[3:0];
+end
 endgenerate
 
 // functions ---------------------------------------------------------------
